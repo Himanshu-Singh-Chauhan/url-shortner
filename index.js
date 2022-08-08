@@ -3,15 +3,26 @@
 // slug is an alias user can choose.
 // then we add nanoid generated id to it.
 
+// Note - slug should be case insensitive for security
+// not sure what it means, but just followed it for now.
 
 import express from 'express'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
 import yup from 'yup'
+import monk from 'monk' // library to talk to mongodb
 import { nanoid } from 'nanoid'
 
+import 'dotenv/config' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+
+
 const app = express()
+
+const db = monk(process.env.MONGO_URI);
+const urls = db.get('urls');
+urls.createIndex('slug');
+// urls.createIndex({ slug: 1 }, { unique: true }); // this way is wrong
 
 app.use(helmet())
 app.use(morgan('tiny'))
@@ -19,15 +30,26 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('./public'));
 
-app.get('/url/:id', (res, req) => {
+app.get('/url/:id', async (res, req, next) => {
     // TODO: get a short url by id
 });
 
-app.get('/:id', (req, res) => {
+app.get('/:id', async (req, res, next) => {
     // TODO: redirect to url
-    res.json({
-        message: 'short urls for your code'
-    });
+    const { id: slug } = req.params;
+
+    try {
+        const url = await urls.findOne({ slug });
+    
+        if (url) {
+            res.redirect(url.url);
+        }
+
+        res.redirect(`/?error=${slug} not found`);
+    }
+    catch (error) {
+        next(error);
+    }
 });
 
 
@@ -47,14 +69,26 @@ app.post('/url', async (req, res, next) => {
 
         if (!slug) {
             slug = nanoid(5);
+            // 5 means we get 36^5 permutations.
+        } 
+        else {
+            const existing = await urls.findOne({ slug });
+
+            if (existing) {
+                throw new Error('Slug already in use. 😕');
+            }
         }
 
         slug = slug.toLowerCase();
 
-        res.json({
+        const shortURL = {
             slug,
             url
-        })
+        };
+
+        const created = await urls.insert(shortURL);
+
+        res.json(created);
         
     } catch (error) {
         next(error);

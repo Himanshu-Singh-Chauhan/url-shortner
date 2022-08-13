@@ -15,14 +15,17 @@
       <div class="container has-text-centered m-6">
         <h1 class="title">Generate short URLs for your long URLs</h1>
       </div>
+    </header>
 
-      <form action="" class="container is-fluid">
+    <div class="columns is-centered">
+    <div class="column is-half">
+      <form action="" class="container is-fluid is-max-desktop" id = "urlform">
 
         <div class="field">
           <p class="help is-success">slug is custom alias you can choose</p>
           <label class="label">Slug</label>
           <div class="control">
-            <input class="input" type="text" placeholder="type your slug here - optional">
+            <input id="slug" class="input" type="text" placeholder="type your slug here - optional">
             <!-- <p class="help is-success">This slug is available</p> -->
           </div>
         </div>
@@ -30,21 +33,30 @@
         <div class="field">
           <label class="label">URL to shorten</label>
           <div class="control">
-            <input class="input" type="text" placeholder="type your URL">
+            <input id="url" class="input" type="text" placeholder="type your URL">
           </div>
         </div>
         
         <div class="field is-grouped">
           <div class="control">
-            <button class="button is-link">Generate URL</button>
+            <button class="button is-link" type="submit">Generate URL</button>
           </div>
           <div class="control">
-            <button class="button is-link is-light">Reset fields</button>
+            <button class="button is-link is-light" type="reset">Reset fields</button>
           </div>
         </div>
 
       </form>
-    </header>
+      
+      <div class="container">
+        <p id ="generatedurl" class="block message is-success m-6 p-3" style="display: none;"></p>
+        <!-- <p id ="failedurl" class="block message is-danger m-2">failed to generate short url</p> -->
+      </div>
+    </div>
+  </div>
+
+      <script type="text/javascript" src="index.js"></script>
+    
   </body>
   
 </html>

@@ -20,9 +20,10 @@ import 'dotenv/config' // see https://github.com/motdotla/dotenv#how-do-i-use-do
 const app = express()
 
 const db = monk(process.env.MONGO_URI);
+db.then(() => console.log("db connected")).catch(e => console.log(e))
 const urls = db.get('urls');
 urls.createIndex('slug');
-// urls.createIndex({ slug: 1 }, { unique: true }); // this way is wrong
+// urls.createIndex({ slug: 1 }, { unique: true }); // this way is wrong, but not sure
 
 app.use(helmet())
 app.use(morgan('tiny'))
@@ -62,12 +63,14 @@ const schema = yup.object().shape({
 app.post('/url', async (req, res, next) => {
     // TODO: create a short url
     let { slug, url } = req.body;
+    // console.log(slug);
 
     try {
         
         await schema.validate({ slug, url });
-
+        // console.log(slug);
         if (!slug) {
+            // console.log(slug);
             slug = nanoid(5);
             // 5 means we get 36^5 permutations.
         } 
@@ -87,7 +90,7 @@ app.post('/url', async (req, res, next) => {
         };
 
         const created = await urls.insert(shortURL);
-
+        // console.log(created);
         res.json(created);
         
     } catch (error) {

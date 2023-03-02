@@ -44,6 +44,7 @@ app.get('/:id', async (req, res, next) => {
     
         if (url) {
             res.redirect(url.url);
+            return;
         }
 
         res.redirect(`/?error=${slug} not found`);
